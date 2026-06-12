@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottomNav">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Game"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+        <!-- MEMORY -->
+        <LinearLayout
+            android:id="@+id/memory_card"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@drawable/card_bg"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <TextView android:text="Memory Game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- LOGIC -->
+        <LinearLayout
+            android:id="@+id/logic_card"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@drawable/card_bg"
+            android:gravity="center"
+            android:layout_marginTop="12dp">
+
+            <TextView android:text="Logic Game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- FOCUS -->
+        <LinearLayout
+            android:id="@+id/focus_card"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@drawable/card_bg"
+            android:gravity="center"
+            android:layout_marginTop="12dp">
+
+            <TextView android:text="Focus Game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- SPEED -->
+        <LinearLayout
+            android:id="@+id/speed_card"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@drawable/card_bg"
+            android:gravity="center"
+            android:layout_marginTop="12dp">
+
+            <TextView android:text="Speed Game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/bottom_menu"/>
+</RelativeLayout>
