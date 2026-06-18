@@ -1,0 +1,23 @@
+{
+  "name": "comprehensivee2etests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/*.test.js --timeout 30000 --exit",
+    "test:json": "mocha tests/*.test.js --timeout 30000 --exit --reporter json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@axe-core/webdriverjs": "^4.11.3",
+    "axios": "^1.17.0",
+    "chai": "^4.5.0",
+    "exceljs": "^4.4.0",
+    "mocha": "^11.7.6",
+    "selenium-webdriver": "^4.44.0",
+    "sqlite3": "^6.0.1"
+  }
+}

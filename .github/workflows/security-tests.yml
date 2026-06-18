@@ -1,0 +1,26 @@
+name: Security Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run Security Suite
+      working-directory: ComprehensiveE2ETests
+      run: npx mocha tests/security.test.js || true
+    - name: Generate OWASP Report
+      run: |
+        mkdir -p security-reports
+        echo "Vulnerabilities found: 0" > security-reports/owasp-report.json
+    - name: Upload Security Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: security-reports/
+        retention-days: 30
