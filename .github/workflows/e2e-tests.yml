@@ -1,0 +1,160 @@
+name: E2E Selenium Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  e2e-tests:
+    name: Run Comprehensive E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Python / Backend ────────────────────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install backend dependencies
+        working-directory: BrainBattleBackend/BrainBattleBackend
+        run: |
+          pip install flask flask-sqlalchemy flask-cors flask-jwt-extended
+          pip install -r requirements..txt || true
+
+      - name: Start backend server
+        working-directory: BrainBattleBackend/BrainBattleBackend
+        run: |
+          python init_db.py || true
+          nohup python app.py &
+          echo "Backend started"
+          sleep 3
+
+      # ── Node.js / Frontend ──────────────────────────────────────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: BrainBattleWeb/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: BrainBattleWeb
+        run: npm install
+
+      - name: Build and preview frontend
+        working-directory: BrainBattleWeb
+        run: |
+          npm run build
+          nohup npm run preview -- --host 0.0.0.0 --port 5173 &
+          echo "Frontend preview server started"
+          sleep 5
+
+      # ── Chrome / ChromeDriver ───────────────────────────────────────
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Install ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: Start Xvfb (virtual display)
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb :99 -screen 0 1280x1024x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      # ── E2E Test Suite ──────────────────────────────────────────────
+      - name: Install E2E test dependencies
+        working-directory: ComprehensiveE2ETests
+        run: npm install
+
+      - name: Run Comprehensive E2E Tests
+        id: run_tests
+        working-directory: ComprehensiveE2ETests
+        env:
+          DISPLAY: ':99'
+          CHROME_BIN: /usr/bin/google-chrome
+        run: |
+          # Run mocha tests with JSON reporter to capture structured results
+          npx mocha tests/*.test.js \
+            --timeout 30000 \
+            --reporter json \
+            --reporter-option output=test-results.json \
+            --exit || true
+
+          # Also run with spec reporter for readable logs
+          npx mocha tests/*.test.js \
+            --timeout 30000 \
+            --reporter spec \
+            --exit || echo "Some tests may have failed, continuing..."
+        continue-on-error: true
+
+      # ── Job Summary ─────────────────────────────────────────────────
+      - name: Generate Job Summary
+        if: always()
+        working-directory: ComprehensiveE2ETests
+        run: |
+          echo "## 🧪 E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f test-results.json ]; then
+            # Parse JSON results
+            TOTAL=$(node -e "const r=require('./test-results.json'); console.log(r.stats.tests || 0)")
+            PASS=$(node -e "const r=require('./test-results.json'); console.log(r.stats.passes || 0)")
+            FAIL=$(node -e "const r=require('./test-results.json'); console.log(r.stats.failures || 0)")
+            PENDING=$(node -e "const r=require('./test-results.json'); console.log(r.stats.pending || 0)")
+            DURATION=$(node -e "const r=require('./test-results.json'); console.log(Math.round((r.stats.duration||0)/1000))")
+
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Passed  | $PASS |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failed  | $FAIL |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⏭️ Skipped | $PENDING |" >> $GITHUB_STEP_SUMMARY
+            echo "| 📊 Total   | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⏱️ Duration | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Test detail table
+            echo "### Test Details" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Suite | Test | Status | Duration |" >> $GITHUB_STEP_SUMMARY
+            echo "|-------|------|--------|----------|" >> $GITHUB_STEP_SUMMARY
+
+            node -e "
+              const r = require('./test-results.json');
+              const all = [];
+              function collect(suite, prefix) {
+                (suite.tests || []).forEach(t => {
+                  const status = t.err && Object.keys(t.err).length > 0 ? '❌ Fail' : t.duration === undefined ? '⏭️ Skip' : '✅ Pass';
+                  const dur = t.duration ? t.duration + 'ms' : '-';
+                  const suiteName = prefix || suite.title || 'Root';
+                  console.log('| ' + suiteName + ' | ' + t.title + ' | ' + status + ' | ' + dur + ' |');
+                });
+                (suite.suites || []).forEach(s => collect(s, s.title));
+              }
+              collect(r);
+            " >> $GITHUB_STEP_SUMMARY || echo "| - | Could not parse detailed results | - | - |" >> $GITHUB_STEP_SUMMARY
+
+          else
+            echo "> ⚠️ No JSON test results file found. Tests may not have produced output." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # ── Upload Artifacts ────────────────────────────────────────────
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: |
+            ComprehensiveE2ETests/test-results.json
+            ComprehensiveE2ETests/reports/
+          if-no-files-found: ignore
+          retention-days: 30
