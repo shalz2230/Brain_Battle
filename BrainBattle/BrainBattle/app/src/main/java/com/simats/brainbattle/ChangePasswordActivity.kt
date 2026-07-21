@@ -35,6 +35,16 @@ class ChangePasswordActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (!"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".toRegex().matches(email)) {
+                Toast.makeText(this, "Invalid mail", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (newPassword.length <= 6) {
+                Toast.makeText(this, "Password should be more than 6 characters", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             ApiClient.instance.changePassword(
                 ChangePasswordRequest(email, newPassword)
             ).enqueue(object : Callback<MessageResponse> {

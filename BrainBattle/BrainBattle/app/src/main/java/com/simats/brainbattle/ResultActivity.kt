@@ -20,6 +20,10 @@ class ResultActivity : AppCompatActivity() {
         val txtStars = findViewById<TextView>(R.id.txtStars)
         val txtTime = findViewById<TextView>(R.id.txtTime)
         val btnContinue = findViewById<MaterialButton>(R.id.btnContinue)
+        val txtSurveyLink = findViewById<TextView>(R.id.txtSurveyLink)
+        txtSurveyLink.setOnClickListener {
+            startActivity(Intent(this, PostGameSurveyActivity::class.java))
+        }
 
         // ✅ Get data
         val level = intent.getIntExtra("LEVEL", 1)

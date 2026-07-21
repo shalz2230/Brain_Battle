@@ -64,6 +64,17 @@
             android:background="@drawable/button_gradient"
             app:backgroundTint="@null" />
 
+        <TextView
+            android:id="@+id/txtSurveyLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📋 Parents: Share Feedback (1-Min Survey)"
+            android:textColor="#3f51b5"
+            android:textSize="12sp"
+            android:layout_marginTop="16dp"
+            android:clickable="true"
+            android:focusable="true"/>
+
     </LinearLayout>
 
 </LinearLayout>

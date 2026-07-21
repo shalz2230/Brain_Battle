@@ -40,6 +40,15 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (!"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".toRegex().matches(emailText)) {
+                Toast.makeText(
+                    this,
+                    "Invalid mail",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
             val request = AuthRequest(
                 email = emailText,
                 password = passwordText

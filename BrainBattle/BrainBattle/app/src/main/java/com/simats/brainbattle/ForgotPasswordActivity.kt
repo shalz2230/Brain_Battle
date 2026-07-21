@@ -30,6 +30,11 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (!"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".toRegex().matches(email)) {
+                Toast.makeText(this, "Invalid mail", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             ApiClient.instance.forgotPassword(UserRequest(email))
                 .enqueue(object : Callback<MessageResponse> {
 

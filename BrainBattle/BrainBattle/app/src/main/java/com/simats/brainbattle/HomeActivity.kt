@@ -38,6 +38,11 @@ class HomeActivity : AppCompatActivity() {
         scoreText = findViewById(R.id.scoreText)
         btnStart = findViewById(R.id.btnStart)
 
+        val btnStartSurvey = findViewById<Button>(R.id.btnStartSurvey)
+        btnStartSurvey.setOnClickListener {
+            startActivity(Intent(this, PreGameSurveyActivity::class.java))
+        }
+
         memory = findViewById(R.id.memory_card)
         logic = findViewById(R.id.logic_card)
         focus = findViewById(R.id.focus_card)

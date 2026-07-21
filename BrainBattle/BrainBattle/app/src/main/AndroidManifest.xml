@@ -69,6 +69,10 @@
         <activity android:name=".ForgotPasswordActivity"/>
         <activity android:name=".ChangePasswordActivity"/>
 
+        <!-- PARENT SURVEY ACTIVITIES -->
+        <activity android:name=".PreGameSurveyActivity" />
+        <activity android:name=".PostGameSurveyActivity" />
+
     </application>
 
 </manifest>

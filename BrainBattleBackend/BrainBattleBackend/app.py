@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from database.db import db
 from config import Config   # ✅ import config
 
@@ -7,6 +8,16 @@ def create_app():
 
     # ✅ use config.py (absolute DB path)
     app.config.from_object(Config)
+
+    # ✅ Allow browser-based web clients to call the API
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+    @app.route('/')
+    def index():
+        return {
+            "status": "success",
+            "message": "BrainBattle API is running"
+        }, 200
 
     db.init_app(app)
 

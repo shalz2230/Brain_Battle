@@ -38,6 +38,16 @@ class SignupActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (!"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".toRegex().matches(emailText)) {
+                Toast.makeText(this, "Invalid mail", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (passText.length <= 6) {
+                Toast.makeText(this, "Password should be more than 6 characters", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val request = AuthRequest(
                 username = nameText,
                 email = emailText,
